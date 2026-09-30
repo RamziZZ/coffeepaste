@@ -7,6 +7,10 @@
   },
   "servers": [
     {
+      "url": "https://coffeepaste-production.up.railway.app",
+      "description": "Production - Railway"
+    },
+    {
       "url": "http://localhost:8080",
       "description": "Local Development Server"
     }
@@ -19,6 +23,34 @@
     {
       "name": "Authentication",
       "description": "Register dan login pengguna"
+    },
+    {
+      "name": "Categories",
+      "description": "Manajemen kategori menu"
+    },
+    {
+      "name": "Products",
+      "description": "Manajemen produk atau menu cafe"
+    },
+    {
+      "name": "Variants",
+      "description": "Manajemen variant produk"
+    },
+    {
+      "name": "Inventory",
+      "description": "Manajemen pergerakan stok produk"
+    },
+    {
+      "name": "Users",
+      "description": "Manajemen pengguna dan cashier"
+    },
+    {
+      "name": "Shifts",
+      "description": "Manajemen shift cashier"
+    },
+    {
+      "name": "Orders",
+      "description": "Manajemen pesanan"
     }
   ],
   "paths": {
@@ -47,13 +79,14 @@
         }
       }
     },
+
     "/api/v1/auth/register": {
       "post": {
         "tags": [
           "Authentication"
         ],
         "summary": "Register Customer",
-        "description": "Mendaftarkan pengguna baru. Setiap akun yang melakukan registrasi publik otomatis mendapatkan role CUSTOMER.",
+        "description": "Mendaftarkan pengguna baru. Registrasi publik otomatis mendapatkan role CUSTOMER.",
         "requestBody": {
           "required": true,
           "content": {
@@ -91,9 +124,8 @@
             "description": "Data registrasi tidak valid atau email sudah terdaftar",
             "content": {
               "application/json": {
-                "example": {
-                  "status": "error",
-                  "message": "email sudah terdaftar"
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
             }
@@ -101,6 +133,7 @@
         }
       }
     },
+
     "/api/v1/auth/login": {
       "post": {
         "tags": [
@@ -139,18 +172,8 @@
             "description": "Login berhasil",
             "content": {
               "application/json": {
-                "example": {
-                  "status": "success",
-                  "message": "Login berhasil",
-                  "data": {
-                    "user": {
-                      "id": 2,
-                      "name": "Ramzi",
-                      "email": "ramzi@gmail.com",
-                      "role": "CUSTOMER"
-                    },
-                    "token": "eyJhbGciOiJIUzI1NiIs..."
-                  }
+                "schema": {
+                  "$ref": "#/components/schemas/LoginResponse"
                 }
               }
             }
@@ -159,28 +182,1036 @@
             "description": "Data login tidak valid",
             "content": {
               "application/json": {
-                "example": {
-                  "status": "error",
-                  "message": "data login tidak valid"
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
             }
           },
           "401": {
-            "description": "Email atau password salah / akun tidak aktif",
+            "description": "Email atau password salah atau akun tidak aktif",
             "content": {
               "application/json": {
-                "example": {
-                  "status": "error",
-                  "message": "email atau password salah"
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
             }
           }
         }
       }
+    },
+
+    "/api/v1/categories": {
+      "get": {
+        "tags": [
+          "Categories"
+        ],
+        "summary": "Get All Categories",
+        "description": "Mengambil seluruh kategori menu.",
+        "responses": {
+          "200": {
+            "description": "Daftar kategori berhasil diambil",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CategoryListResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Categories"
+        ],
+        "summary": "Create Category",
+        "description": "Membuat kategori menu baru.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CategoryRequest"
+              },
+              "example": {
+                "name": "Coffee",
+                "description": "Menu kopi"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Kategori berhasil dibuat",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CategoryResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+
+    "/api/v1/categories/{id}": {
+      "get": {
+        "tags": [
+          "Categories"
+        ],
+        "summary": "Get Category By ID",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/ID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Kategori ditemukan",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CategoryResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Categories"
+        ],
+        "summary": "Update Category",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/ID"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CategoryRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Kategori berhasil diperbarui"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Categories"
+        ],
+        "summary": "Delete Category",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/ID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Kategori berhasil dihapus"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      }
+    },
+
+    "/api/v1/products": {
+      "get": {
+        "tags": [
+          "Products"
+        ],
+        "summary": "Get All Products",
+        "responses": {
+          "200": {
+            "description": "Daftar produk berhasil diambil",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProductListResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Products"
+        ],
+        "summary": "Create Product",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProductRequest"
+              },
+              "example": {
+                "category_id": 1,
+                "name": "Cappuccino",
+                "barcode": "8991234567890",
+                "description": "Cappuccino dengan foam susu",
+                "price": 18000,
+                "stock": 50,
+                "image_url": "https://example.com/cappuccino.jpg",
+                "is_available": true
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Produk berhasil dibuat"
+          }
+        }
+      }
+    },
+
+    "/api/v1/products/{id}": {
+      "get": {
+        "tags": [
+          "Products"
+        ],
+        "summary": "Get Product By ID",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/ID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Produk ditemukan",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProductResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Products"
+        ],
+        "summary": "Update Product",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/ID"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProductRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Produk berhasil diperbarui"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Products"
+        ],
+        "summary": "Delete Product",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/ID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Produk berhasil dihapus"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      }
+    },
+
+    "/api/v1/variants": {
+      "get": {
+        "tags": [
+          "Variants"
+        ],
+        "summary": "Get All Variants",
+        "responses": {
+          "200": {
+            "description": "Daftar variant berhasil diambil",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VariantListResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Variants"
+        ],
+        "summary": "Create Variant",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/VariantRequest"
+              },
+              "example": {
+                "product_id": 1,
+                "name": "Large",
+                "price_adjustment": 5000,
+                "is_active": true
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Variant berhasil dibuat"
+          }
+        }
+      }
+    },
+
+    "/api/v1/variants/{id}": {
+      "get": {
+        "tags": [
+          "Variants"
+        ],
+        "summary": "Get Variant By ID",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/ID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Variant ditemukan"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Variants"
+        ],
+        "summary": "Update Variant",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/ID"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/VariantRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Variant berhasil diperbarui"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Variants"
+        ],
+        "summary": "Delete Variant",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/ID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Variant berhasil dihapus"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      }
+    },
+
+    "/api/v1/inventory": {
+      "get": {
+        "tags": [
+          "Inventory"
+        ],
+        "summary": "Get All Inventory Movements",
+        "responses": {
+          "200": {
+            "description": "Daftar inventory movement berhasil diambil",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InventoryListResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Inventory"
+        ],
+        "summary": "Create Inventory Movement",
+        "description": "Membuat pergerakan stok IN, OUT, atau ADJUSTMENT. Backend memperbarui stock produk secara transaction-safe.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/InventoryRequest"
+              },
+              "examples": {
+                "stockIn": {
+                  "summary": "Stock IN",
+                  "value": {
+                    "product_id": 1,
+                    "type": "IN",
+                    "quantity": 20,
+                    "note": "Stok pembelian baru"
+                  }
+                },
+                "stockOut": {
+                  "summary": "Stock OUT",
+                  "value": {
+                    "product_id": 1,
+                    "type": "OUT",
+                    "quantity": 2,
+                    "note": "Stok rusak"
+                  }
+                },
+                "adjustment": {
+                  "summary": "Stock Adjustment",
+                  "value": {
+                    "product_id": 1,
+                    "type": "ADJUSTMENT",
+                    "quantity": 50,
+                    "note": "Penyesuaian stok"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Inventory movement berhasil dibuat"
+          }
+        }
+      }
+    },
+
+    "/api/v1/inventory/{id}": {
+      "get": {
+        "tags": [
+          "Inventory"
+        ],
+        "summary": "Get Inventory Movement By ID",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/ID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Inventory movement ditemukan"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      }
+    },
+
+    "/api/v1/users": {
+      "get": {
+        "tags": [
+          "Users"
+        ],
+        "summary": "Get All Users",
+        "responses": {
+          "200": {
+            "description": "Daftar user berhasil diambil",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserListResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+
+    "/api/v1/users/{id}": {
+      "get": {
+        "tags": [
+          "Users"
+        ],
+        "summary": "Get User By ID",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/ID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "User ditemukan"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Users"
+        ],
+        "summary": "Update User",
+        "description": "Memperbarui data user. Owner ID 1 dilindungi dari perubahan tertentu oleh service.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/ID"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UserUpdateRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "User berhasil diperbarui"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Users"
+        ],
+        "summary": "Delete User",
+        "description": "Menghapus user. Owner utama dengan ID 1 tidak dapat dihapus.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/ID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "User berhasil dihapus"
+          },
+          "400": {
+            "description": "User tidak dapat dihapus"
+          }
+        }
+      }
+    },
+
+    "/api/v1/users/cashier": {
+      "post": {
+        "tags": [
+          "Users"
+        ],
+        "summary": "Create Cashier",
+        "description": "Membuat akun cashier. Backend secara otomatis memberikan role CASHIER.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateCashierRequest"
+              },
+              "example": {
+                "name": "Budi",
+                "email": "budi@cafe.com",
+                "password": "Budi123",
+                "phone": "081234567890"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Cashier berhasil dibuat"
+          }
+        }
+      }
+    },
+
+    "/api/v1/users/{id}/password": {
+      "put": {
+        "tags": [
+          "Users"
+        ],
+        "summary": "Update User Password",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/ID"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdatePasswordRequest"
+              },
+              "example": {
+                "password": "NewPassword123"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Password berhasil diperbarui"
+          }
+        }
+      }
+    },
+
+    "/api/v1/users/{id}/status": {
+      "patch": {
+        "tags": [
+          "Users"
+        ],
+        "summary": "Update User Status",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/ID"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UserStatusRequest"
+              },
+              "example": {
+                "is_active": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Status user berhasil diperbarui"
+          }
+        }
+      }
+    },
+
+    "/api/v1/shifts": {
+      "get": {
+        "tags": [
+          "Shifts"
+        ],
+        "summary": "Get All Shifts",
+        "responses": {
+          "200": {
+            "description": "Daftar shift berhasil diambil",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ShiftListResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+
+    "/api/v1/shifts/my": {
+      "get": {
+        "tags": [
+          "Shifts"
+        ],
+        "summary": "Get My Shifts",
+        "description": "Mengambil seluruh shift milik user yang sedang login.",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Daftar shift berhasil diambil"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          }
+        }
+      }
+    },
+
+    "/api/v1/shifts/my/open": {
+      "get": {
+        "tags": [
+          "Shifts"
+        ],
+        "summary": "Get My Open Shift",
+        "description": "Mengambil shift aktif milik user yang sedang login.",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Shift aktif berhasil diambil"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          }
+        }
+      }
+    },
+
+    "/api/v1/shifts/{id}": {
+      "get": {
+        "tags": [
+          "Shifts"
+        ],
+        "summary": "Get Shift By ID",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/ID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Shift ditemukan"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      }
+    },
+
+    "/api/v1/shifts/open": {
+      "post": {
+        "tags": [
+          "Shifts"
+        ],
+        "summary": "Open Shift",
+        "description": "Membuka shift baru untuk cashier yang sedang login.",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/OpenShiftRequest"
+              },
+              "example": {
+                "opening_cash": 500000
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Shift berhasil dibuka"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          }
+        }
+      }
+    },
+
+    "/api/v1/shifts/{id}/close": {
+      "post": {
+        "tags": [
+          "Shifts"
+        ],
+        "summary": "Close Shift",
+        "description": "Menutup shift cashier.",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/ID"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CloseShiftRequest"
+              },
+              "example": {
+                "closing_cash": 1250000
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Shift berhasil ditutup"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          }
+        }
+      }
+    },
+
+    "/api/v1/orders": {
+      "get": {
+        "tags": [
+          "Orders"
+        ],
+        "summary": "Get All Orders",
+        "responses": {
+          "200": {
+            "description": "Daftar order berhasil diambil",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrderListResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Orders"
+        ],
+        "summary": "Create Order",
+        "description": "Membuat order baru. Backend menghitung subtotal, discount, tax, dan total_amount.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateOrderRequest"
+              },
+              "example": {
+                "order_type": "DINE_IN",
+                "table_number": "A05",
+                "items": [
+                  {
+                    "product_id": 1,
+                    "variant_id": 2,
+                    "quantity": 2,
+                    "notes": "Less sugar"
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Order berhasil dibuat"
+          },
+          "400": {
+            "description": "Data order tidak valid"
+          }
+        }
+      }
+    },
+
+    "/api/v1/orders/my": {
+      "get": {
+        "tags": [
+          "Orders"
+        ],
+        "summary": "Get My Orders",
+        "description": "Mengambil order milik customer yang sedang login.",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Daftar order customer berhasil diambil"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          }
+        }
+      }
+    },
+
+    "/api/v1/orders/{id}": {
+      "get": {
+        "tags": [
+          "Orders"
+        ],
+        "summary": "Get Order By ID",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/ID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Order ditemukan",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrderResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      }
+    },
+
+    "/api/v1/orders/{id}/assign": {
+      "patch": {
+        "tags": [
+          "Orders"
+        ],
+        "summary": "Assign Cashier To Order",
+        "description": "Menentukan cashier yang menangani order.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/ID"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AssignCashierRequest"
+              },
+              "example": {
+                "cashier_id": 3
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Cashier berhasil di-assign ke order"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      }
+    },
+
+    "/api/v1/orders/{id}/status": {
+      "patch": {
+        "tags": [
+          "Orders"
+        ],
+        "summary": "Update Order Status",
+        "description": "Mengubah status order.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/ID"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/OrderStatusRequest"
+              },
+              "example": {
+                "status": "PROCESSING"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Status order berhasil diperbarui"
+          },
+          "400": {
+            "description": "Status order tidak valid"
+          }
+        }
+      }
     }
   },
+
   "components": {
     "securitySchemes": {
       "BearerAuth": {
@@ -189,7 +1220,74 @@
         "bearerFormat": "JWT"
       }
     },
+
+    "parameters": {
+      "ID": {
+        "name": "id",
+        "in": "path",
+        "required": true,
+        "description": "ID resource",
+        "schema": {
+          "type": "integer",
+          "format": "int64",
+          "minimum": 1
+        },
+        "example": 1
+      }
+    },
+
+    "responses": {
+      "Unauthorized": {
+        "description": "Token JWT tidak ada atau tidak valid",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ErrorResponse"
+            }
+          }
+        }
+      },
+      "NotFound": {
+        "description": "Data tidak ditemukan",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ErrorResponse"
+            }
+          }
+        }
+      }
+    },
+
     "schemas": {
+      "SuccessResponse": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "example": "success"
+          },
+          "message": {
+            "type": "string",
+            "example": "Cafe POS Backend is running"
+          }
+        }
+      },
+
+      "ErrorResponse": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "example": "error"
+          },
+          "message": {
+            "type": "string",
+            "example": "Data tidak ditemukan"
+          }
+        }
+      },
+
       "RegisterRequest": {
         "type": "object",
         "required": [
@@ -215,6 +1313,7 @@
           }
         }
       },
+
       "LoginRequest": {
         "type": "object",
         "required": [
@@ -234,6 +1333,7 @@
           }
         }
       },
+
       "UserResponse": {
         "type": "object",
         "properties": {
@@ -261,7 +1361,8 @@
           }
         }
       },
-      "SuccessResponse": {
+
+      "LoginResponse": {
         "type": "object",
         "properties": {
           "status": {
@@ -270,7 +1371,741 @@
           },
           "message": {
             "type": "string",
-            "example": "Cafe POS Backend is running"
+            "example": "Login berhasil"
+          },
+          "data": {
+            "type": "object",
+            "properties": {
+              "user": {
+                "$ref": "#/components/schemas/UserResponse"
+              },
+              "token": {
+                "type": "string",
+                "example": "eyJhbGciOiJIUzI1NiIs..."
+              }
+            }
+          }
+        }
+      },
+
+      "CategoryRequest": {
+        "type": "object",
+        "required": [
+          "name"
+        ],
+        "properties": {
+          "name": {
+            "type": "string",
+            "example": "Coffee"
+          },
+          "description": {
+            "type": "string",
+            "example": "Menu kopi"
+          }
+        }
+      },
+
+      "Category": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64",
+            "example": 1
+          },
+          "name": {
+            "type": "string",
+            "example": "Coffee"
+          },
+          "description": {
+            "type": "string",
+            "example": "Menu kopi"
+          }
+        }
+      },
+
+      "CategoryResponse": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "example": "success"
+          },
+          "data": {
+            "$ref": "#/components/schemas/Category"
+          }
+        }
+      },
+
+      "CategoryListResponse": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "example": "success"
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Category"
+            }
+          }
+        }
+      },
+
+      "ProductRequest": {
+        "type": "object",
+        "required": [
+          "category_id",
+          "name",
+          "price"
+        ],
+        "properties": {
+          "category_id": {
+            "type": "integer",
+            "format": "int64",
+            "example": 1
+          },
+          "name": {
+            "type": "string",
+            "example": "Cappuccino"
+          },
+          "barcode": {
+            "type": "string",
+            "example": "8991234567890"
+          },
+          "description": {
+            "type": "string",
+            "example": "Cappuccino dengan foam susu"
+          },
+          "price": {
+            "type": "number",
+            "format": "double",
+            "example": 18000
+          },
+          "stock": {
+            "type": "integer",
+            "example": 50
+          },
+          "image_url": {
+            "type": "string",
+            "format": "uri",
+            "example": "https://example.com/cappuccino.jpg"
+          },
+          "is_available": {
+            "type": "boolean",
+            "example": true
+          }
+        }
+      },
+
+      "Product": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/ProductRequest"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "integer",
+                "format": "int64",
+                "example": 1
+              }
+            }
+          }
+        ]
+      },
+
+      "ProductResponse": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "example": "success"
+          },
+          "data": {
+            "$ref": "#/components/schemas/Product"
+          }
+        }
+      },
+
+      "ProductListResponse": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "example": "success"
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Product"
+            }
+          }
+        }
+      },
+
+      "VariantRequest": {
+        "type": "object",
+        "required": [
+          "product_id",
+          "name"
+        ],
+        "properties": {
+          "product_id": {
+            "type": "integer",
+            "format": "int64",
+            "example": 1
+          },
+          "name": {
+            "type": "string",
+            "example": "Large"
+          },
+          "price_adjustment": {
+            "type": "number",
+            "format": "double",
+            "example": 5000
+          },
+          "is_active": {
+            "type": "boolean",
+            "example": true
+          }
+        }
+      },
+
+      "Variant": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/VariantRequest"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "integer",
+                "format": "int64",
+                "example": 1
+              }
+            }
+          }
+        ]
+      },
+
+      "VariantListResponse": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "example": "success"
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Variant"
+            }
+          }
+        }
+      },
+
+      "InventoryRequest": {
+        "type": "object",
+        "required": [
+          "product_id",
+          "type",
+          "quantity"
+        ],
+        "properties": {
+          "product_id": {
+            "type": "integer",
+            "format": "int64",
+            "example": 1
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "IN",
+              "OUT",
+              "ADJUSTMENT"
+            ],
+            "example": "IN"
+          },
+          "quantity": {
+            "type": "integer",
+            "minimum": 1,
+            "example": 20
+          },
+          "reference_id": {
+            "type": "integer",
+            "format": "int64",
+            "nullable": true,
+            "example": 1
+          },
+          "reference_type": {
+            "type": "string",
+            "nullable": true,
+            "example": "PURCHASE"
+          },
+          "note": {
+            "type": "string",
+            "example": "Stok pembelian baru"
+          }
+        }
+      },
+
+      "InventoryMovement": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64",
+            "example": 1
+          },
+          "product_id": {
+            "type": "integer",
+            "format": "int64",
+            "example": 1
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "IN",
+              "OUT",
+              "ADJUSTMENT"
+            ]
+          },
+          "quantity": {
+            "type": "integer",
+            "example": 20
+          },
+          "stock_before": {
+            "type": "integer",
+            "example": 30
+          },
+          "stock_after": {
+            "type": "integer",
+            "example": 50
+          },
+          "reference_id": {
+            "type": "integer",
+            "format": "int64",
+            "nullable": true
+          },
+          "reference_type": {
+            "type": "string",
+            "nullable": true
+          },
+          "note": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+
+      "InventoryListResponse": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "example": "success"
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/InventoryMovement"
+            }
+          }
+        }
+      },
+
+      "CreateCashierRequest": {
+        "type": "object",
+        "required": [
+          "name",
+          "email",
+          "password"
+        ],
+        "properties": {
+          "name": {
+            "type": "string",
+            "example": "Budi"
+          },
+          "email": {
+            "type": "string",
+            "format": "email",
+            "example": "budi@cafe.com"
+          },
+          "password": {
+            "type": "string",
+            "format": "password",
+            "minLength": 6,
+            "example": "Budi123"
+          },
+          "phone": {
+            "type": "string",
+            "example": "081234567890"
+          }
+        }
+      },
+
+      "UserUpdateRequest": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "example": "Budi Santoso"
+          },
+          "email": {
+            "type": "string",
+            "format": "email",
+            "example": "budi@cafe.com"
+          },
+          "phone": {
+            "type": "string",
+            "example": "081234567890"
+          }
+        }
+      },
+
+      "UpdatePasswordRequest": {
+        "type": "object",
+        "required": [
+          "password"
+        ],
+        "properties": {
+          "password": {
+            "type": "string",
+            "format": "password",
+            "minLength": 6,
+            "example": "NewPassword123"
+          }
+        }
+      },
+
+      "UserStatusRequest": {
+        "type": "object",
+        "required": [
+          "is_active"
+        ],
+        "properties": {
+          "is_active": {
+            "type": "boolean",
+            "example": true
+          }
+        }
+      },
+
+      "OpenShiftRequest": {
+        "type": "object",
+        "required": [
+          "opening_cash"
+        ],
+        "properties": {
+          "opening_cash": {
+            "type": "number",
+            "format": "double",
+            "minimum": 0,
+            "example": 500000
+          }
+        }
+      },
+
+      "CloseShiftRequest": {
+        "type": "object",
+        "required": [
+          "closing_cash"
+        ],
+        "properties": {
+          "closing_cash": {
+            "type": "number",
+            "format": "double",
+            "minimum": 0,
+            "example": 1250000
+          }
+        }
+      },
+
+      "Shift": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64",
+            "example": 1
+          },
+          "user_id": {
+            "type": "integer",
+            "format": "int64",
+            "example": 3
+          },
+          "opened_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "closed_at": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "opening_cash": {
+            "type": "number",
+            "format": "double",
+            "example": 500000
+          },
+          "closing_cash": {
+            "type": "number",
+            "format": "double",
+            "nullable": true,
+            "example": 1250000
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "OPEN",
+              "CLOSED"
+            ]
+          }
+        }
+      },
+
+      "ShiftListResponse": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "example": "success"
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Shift"
+            }
+          }
+        }
+      },
+
+      "OrderItemRequest": {
+        "type": "object",
+        "required": [
+          "product_id",
+          "quantity"
+        ],
+        "properties": {
+          "product_id": {
+            "type": "integer",
+            "format": "int64",
+            "example": 1
+          },
+          "variant_id": {
+            "type": "integer",
+            "format": "int64",
+            "nullable": true,
+            "example": 2
+          },
+          "quantity": {
+            "type": "integer",
+            "minimum": 1,
+            "example": 2
+          },
+          "notes": {
+            "type": "string",
+            "nullable": true,
+            "example": "Less sugar"
+          }
+        }
+      },
+
+      "CreateOrderRequest": {
+        "type": "object",
+        "required": [
+          "order_type",
+          "items"
+        ],
+        "properties": {
+          "order_type": {
+            "type": "string",
+            "enum": [
+              "DINE_IN",
+              "TAKEAWAY"
+            ],
+            "example": "DINE_IN"
+          },
+          "table_number": {
+            "type": "string",
+            "nullable": true,
+            "example": "A05"
+          },
+          "items": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "$ref": "#/components/schemas/OrderItemRequest"
+            }
+          }
+        }
+      },
+
+      "AssignCashierRequest": {
+        "type": "object",
+        "required": [
+          "cashier_id"
+        ],
+        "properties": {
+          "cashier_id": {
+            "type": "integer",
+            "format": "int64",
+            "example": 3
+          }
+        }
+      },
+
+      "OrderStatusRequest": {
+        "type": "object",
+        "required": [
+          "status"
+        ],
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": [
+              "PENDING",
+              "PAID",
+              "PROCESSING",
+              "READY",
+              "COMPLETED",
+              "CANCELLED"
+            ],
+            "example": "PROCESSING"
+          }
+        }
+      },
+
+      "Order": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64",
+            "example": 1
+          },
+          "invoice_no": {
+            "type": "string",
+            "example": "INV-20260930113016"
+          },
+          "customer_id": {
+            "type": "integer",
+            "format": "int64",
+            "example": 2
+          },
+          "cashier_id": {
+            "type": "integer",
+            "format": "int64",
+            "nullable": true,
+            "example": 3
+          },
+          "shift_id": {
+            "type": "integer",
+            "format": "int64",
+            "nullable": true,
+            "example": 1
+          },
+          "order_type": {
+            "type": "string",
+            "enum": [
+              "DINE_IN",
+              "TAKEAWAY"
+            ],
+            "example": "DINE_IN"
+          },
+          "table_number": {
+            "type": "string",
+            "nullable": true,
+            "example": "A05"
+          },
+          "subtotal": {
+            "type": "number",
+            "format": "double",
+            "example": 36000
+          },
+          "discount": {
+            "type": "number",
+            "format": "double",
+            "example": 0
+          },
+          "tax": {
+            "type": "number",
+            "format": "double",
+            "example": 3600
+          },
+          "total_amount": {
+            "type": "number",
+            "format": "double",
+            "example": 39600
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "PENDING",
+              "PAID",
+              "PROCESSING",
+              "READY",
+              "COMPLETED",
+              "CANCELLED"
+            ],
+            "example": "PENDING"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+
+      "OrderResponse": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "example": "success"
+          },
+          "data": {
+            "$ref": "#/components/schemas/Order"
+          }
+        }
+      },
+
+      "OrderListResponse": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "example": "success"
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Order"
+            }
+          }
+        }
+      },
+
+      "UserListResponse": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "example": "success"
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/UserResponse"
+            }
           }
         }
       }

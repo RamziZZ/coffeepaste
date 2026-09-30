@@ -3,9 +3,9 @@ package orders
 import "time"
 
 type CreateOrderItemRequest struct {
-	ProductID int64  `json:"product_id" binding:"required"`
-	VariantID *int64 `json:"variant_id"`
-	Quantity  int    `json:"quantity" binding:"required,min=1"`
+	ProductID int64   `json:"product_id" binding:"required"`
+	VariantID *int64  `json:"variant_id"`
+	Quantity  int     `json:"quantity" binding:"required,min=1"`
 	Notes     *string `json:"notes"`
 }
 
@@ -27,20 +27,20 @@ type AssignCashierRequest struct {
 }
 
 type OrderResponse struct {
-	ID          int64      `json:"id"`
-	InvoiceNo   string     `json:"invoice_no"`
-	CustomerID  int64      `json:"customer_id"`
-	CashierID   *int64     `json:"cashier_id"`
-	ShiftID     *int64     `json:"shift_id"`
-	OrderType   string     `json:"order_type"`
-	TableNumber *string    `json:"table_number"`
-	Subtotal    float64    `json:"subtotal"`
-	Discount    float64    `json:"discount"`
-	Tax         float64    `json:"tax"`
-	TotalAmount float64    `json:"total_amount"`
-	Status      string     `json:"status"`
-	CreatedAt   time.Time  `json:"created_at"`
-	UpdatedAt   time.Time  `json:"updated_at"`
+	ID          int64     `json:"id"`
+	InvoiceNo   string    `json:"invoice_no"`
+	CustomerID  int64     `json:"customer_id"`
+	CashierID   *int64    `json:"cashier_id"`
+	ShiftID     *int64    `json:"shift_id"`
+	OrderType   string    `json:"order_type"`
+	TableNumber *string   `json:"table_number"`
+	Subtotal    float64   `json:"subtotal"`
+	Discount    float64   `json:"discount"`
+	Tax         float64   `json:"tax"`
+	TotalAmount float64   `json:"total_amount"`
+	Status      string    `json:"status"`
+	CreatedAt   time.Time `json:"created_at"`
+	UpdatedAt   time.Time `json:"updated_at"`
 }
 
 type OrderItemResponse struct {

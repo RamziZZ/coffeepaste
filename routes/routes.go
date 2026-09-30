@@ -9,11 +9,11 @@ import (
 	"backend_coffepaste/internal/auth"
 	"backend_coffepaste/internal/categories"
 	"backend_coffepaste/internal/inventory"
+	"backend_coffepaste/internal/orders"
 	"backend_coffepaste/internal/products"
+	"backend_coffepaste/internal/shifts"
 	"backend_coffepaste/internal/users"
 	"backend_coffepaste/internal/variants"
-	"backend_coffepaste/internal/shifts"
-	"backend_coffepaste/internal/orders"
 )
 
 func SetupRoutes(
@@ -140,6 +140,5 @@ func SetupRoutes(
 		orderRoutes.PATCH("/:id/assign", orderHandler.AssignCashier)
 		orderRoutes.PATCH("/:id/status", orderHandler.UpdateStatus)
 	}
-
 
 }

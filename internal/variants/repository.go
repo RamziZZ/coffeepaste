@@ -16,7 +16,6 @@ func NewRepository(db *pgxpool.Pool) *Repository {
 	}
 }
 
-
 // GET ALL VARIANTS
 func (r *Repository) FindAll(ctx context.Context) ([]ProductVariant, error) {
 	rows, err := r.DB.Query(ctx, `
@@ -90,7 +89,6 @@ func (r *Repository) FindByID(
 
 	return variant, nil
 }
-
 
 // CREATE VARIANT
 func (r *Repository) Create(
@@ -187,7 +185,6 @@ func (r *Repository) Update(
 
 	return variant, nil
 }
-
 
 // DELETE VARIANT
 func (r *Repository) Delete(

@@ -260,14 +260,14 @@ func (r *repository) Create(
 	var subtotal float64
 
 	type itemData struct {
-		productID   int64
-		variantID   *int64
-		productName string
-		variantName *string
-		quantity    int
-		unitPrice   float64
+		productID    int64
+		variantID    *int64
+		productName  string
+		variantName  *string
+		quantity     int
+		unitPrice    float64
 		itemSubtotal float64
-		notes       *string
+		notes        *string
 	}
 
 	items := make([]itemData, 0, len(req.Items))
