@@ -1,0 +1,279 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Cafe POS Backend API",
+    "description": "REST API untuk aplikasi Cafe POS menggunakan Go, Gin, dan PostgreSQL.",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:8080",
+      "description": "Local Development Server"
+    }
+  ],
+  "tags": [
+    {
+      "name": "Health",
+      "description": "Health check API"
+    },
+    {
+      "name": "Authentication",
+      "description": "Register dan login pengguna"
+    }
+  ],
+  "paths": {
+    "/api/v1/health": {
+      "get": {
+        "tags": [
+          "Health"
+        ],
+        "summary": "Health Check",
+        "description": "Memeriksa apakah Cafe POS Backend sedang berjalan.",
+        "responses": {
+          "200": {
+            "description": "Backend berjalan dengan baik",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SuccessResponse"
+                },
+                "example": {
+                  "status": "success",
+                  "message": "Cafe POS Backend is running"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/auth/register": {
+      "post": {
+        "tags": [
+          "Authentication"
+        ],
+        "summary": "Register Customer",
+        "description": "Mendaftarkan pengguna baru. Setiap akun yang melakukan registrasi publik otomatis mendapatkan role CUSTOMER.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RegisterRequest"
+              },
+              "example": {
+                "name": "Ramzi",
+                "email": "ramzi@gmail.com",
+                "password": "Ramzi123"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Registrasi berhasil",
+            "content": {
+              "application/json": {
+                "example": {
+                  "status": "success",
+                  "message": "Registrasi berhasil",
+                  "data": {
+                    "id": 2,
+                    "name": "Ramzi",
+                    "email": "ramzi@gmail.com",
+                    "role": "CUSTOMER"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Data registrasi tidak valid atau email sudah terdaftar",
+            "content": {
+              "application/json": {
+                "example": {
+                  "status": "error",
+                  "message": "email sudah terdaftar"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/auth/login": {
+      "post": {
+        "tags": [
+          "Authentication"
+        ],
+        "summary": "Login",
+        "description": "Login pengguna menggunakan email dan password. Jika berhasil, API mengembalikan JWT token.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoginRequest"
+              },
+              "examples": {
+                "customer": {
+                  "summary": "Customer Login",
+                  "value": {
+                    "email": "ramzi@gmail.com",
+                    "password": "Ramzi123"
+                  }
+                },
+                "owner": {
+                  "summary": "Owner Login",
+                  "value": {
+                    "email": "admin@cafe.com",
+                    "password": "Admin@123"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Login berhasil",
+            "content": {
+              "application/json": {
+                "example": {
+                  "status": "success",
+                  "message": "Login berhasil",
+                  "data": {
+                    "user": {
+                      "id": 2,
+                      "name": "Ramzi",
+                      "email": "ramzi@gmail.com",
+                      "role": "CUSTOMER"
+                    },
+                    "token": "eyJhbGciOiJIUzI1NiIs..."
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Data login tidak valid",
+            "content": {
+              "application/json": {
+                "example": {
+                  "status": "error",
+                  "message": "data login tidak valid"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Email atau password salah / akun tidak aktif",
+            "content": {
+              "application/json": {
+                "example": {
+                  "status": "error",
+                  "message": "email atau password salah"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "BearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    },
+    "schemas": {
+      "RegisterRequest": {
+        "type": "object",
+        "required": [
+          "name",
+          "email",
+          "password"
+        ],
+        "properties": {
+          "name": {
+            "type": "string",
+            "example": "Ramzi"
+          },
+          "email": {
+            "type": "string",
+            "format": "email",
+            "example": "ramzi@gmail.com"
+          },
+          "password": {
+            "type": "string",
+            "format": "password",
+            "minLength": 6,
+            "example": "Ramzi123"
+          }
+        }
+      },
+      "LoginRequest": {
+        "type": "object",
+        "required": [
+          "email",
+          "password"
+        ],
+        "properties": {
+          "email": {
+            "type": "string",
+            "format": "email",
+            "example": "ramzi@gmail.com"
+          },
+          "password": {
+            "type": "string",
+            "format": "password",
+            "example": "Ramzi123"
+          }
+        }
+      },
+      "UserResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "example": 2
+          },
+          "name": {
+            "type": "string",
+            "example": "Ramzi"
+          },
+          "email": {
+            "type": "string",
+            "format": "email",
+            "example": "ramzi@gmail.com"
+          },
+          "role": {
+            "type": "string",
+            "enum": [
+              "OWNER",
+              "CASHIER",
+              "CUSTOMER"
+            ],
+            "example": "CUSTOMER"
+          }
+        }
+      },
+      "SuccessResponse": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "example": "success"
+          },
+          "message": {
+            "type": "string",
+            "example": "Cafe POS Backend is running"
+          }
+        }
+      }
+    }
+  }
+}
