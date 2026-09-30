@@ -1,6 +1,8 @@
 package main
 
 import (
+	"os"
+
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
 
@@ -9,34 +11,33 @@ import (
 )
 
 func main() {
+	_ = godotenv.Load()
 
-	// Membaca file .env
-	err := godotenv.Load()
-	if err != nil {
-		panic("Gagal membaca file .env")
-	}
-
-	// Koneksi database
 	db, err := config.ConnectDatabase()
 	if err != nil {
 		panic(err)
 	}
 	defer db.Close()
 
-	// Membuat Gin
 	router := gin.Default()
 
-	// Setup routes
 	routes.SetupRoutes(router, db)
 
-	//Informasi Server
 	println("================================")
 	println("       CAFE POS BACKEND")
 	println("================================")
-	println("Server : http://localhost:8080")
-	println("Health : http://localhost:8080/api/v1/health")
+
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "8080"
+	}
+
+	println("Server : 0.0.0.0:" + port)
+	println("Health : /api/v1/health")
 	println("================================")
 
-	// Jalankan server
-	router.Run(":8080")
+	err = router.Run("0.0.0.0:" + port)
+	if err != nil {
+		panic(err)
+	}
 }
